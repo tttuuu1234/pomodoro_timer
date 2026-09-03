@@ -6,7 +6,7 @@ Issue番号: $ARGUMENTS
 1. `gh issue view $ARGUMENTS` でIssueの内容を確認
 2. Issueの要件を分析し、実装方針を立てる
 3. 実装に必要な既存コードを読んで理解する
-4. feature branchを作成（`feature/issue-{番号}-{簡潔な説明}`）
+4. mainブランチから作業ブランチを作成（機能開発: `feat/{Issue番号}`、バグ修正: `fix/{Issue番号}`、リファクタリング: `refactor/{Issue番号}`）
 5. 実装を行う
 6. ビルドが通ることを確認
 7. 実装内容のサマリーを表示

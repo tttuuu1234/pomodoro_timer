@@ -29,6 +29,13 @@ xcodebuild -project PomodoroTimer.xcodeproj -scheme PomodoroTimer -destination '
 - **テスト:** ユニットテストはSwift Testing（`@Test`マクロ）、UIテストはXCTest
 - **依存:** 外部依存なし（SwiftUI、SwiftData、Foundationのみ）
 
+## ブランチ規則
+
+- 作業ブランチはmainブランチから作成する
+- 機能開発: `feat/{Issue番号}`（例: `feat/1`）
+- バグ修正: `fix/{Issue番号}`（例: `fix/2`）
+- リファクタリング: `refactor/{Issue番号}`（例: `refactor/3`）
+
 ### 主要ファイル
 
 - `PomodoroTimerApp.swift` — アプリのエントリーポイント。SwiftDataの`ModelContainer`を`Item`スキーマで構成
