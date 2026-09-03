@@ -29,6 +29,24 @@ xcodebuild -project PomodoroTimer.xcodeproj -scheme PomodoroTimer -destination '
 - **テスト:** ユニットテストはSwift Testing（`@Test`マクロ）、UIテストはXCTest
 - **依存:** 外部依存なし（SwiftUI、SwiftData、Foundationのみ）
 
+## プロジェクト構成
+
+MVVM + 機能別ディレクトリ構成。
+
+```
+PomodoroTimer/
+├── App/
+│   └── PomodoroTimerApp.swift          # アプリのエントリーポイント
+├── Feature/
+│   └── Timer/
+│       ├── TimerView.swift             # タイマー画面
+│       ├── TimerViewModel.swift        # タイマーのロジック
+│       └── CircularProgressView.swift  # 円形プログレスバー
+├── Model/
+│   └── PomodoroSession.swift           # セッション記録モデル
+└── Assets.xcassets/
+```
+
 ## ブランチ規則
 
 - 作業ブランチはmainブランチから作成する
@@ -38,6 +56,8 @@ xcodebuild -project PomodoroTimer.xcodeproj -scheme PomodoroTimer -destination '
 
 ### 主要ファイル
 
-- `PomodoroTimerApp.swift` — アプリのエントリーポイント。SwiftDataの`ModelContainer`を`Item`スキーマで構成
-- `ContentView.swift` — メインビュー。アイテムの一覧表示・追加・削除機能
-- `Item.swift` — SwiftDataの`@Model`。`timestamp: Date`プロパティを持つ
+- `App/PomodoroTimerApp.swift` — アプリのエントリーポイント。SwiftDataの`ModelContainer`を`PomodoroSession`スキーマで構成
+- `Feature/Timer/TimerView.swift` — タイマー画面。円形プログレスバー・操作ボタン・フェーズ表示
+- `Feature/Timer/TimerViewModel.swift` — タイマーロジック。カウントダウン・フェーズ自動切り替え・セッション保存・通知
+- `Feature/Timer/CircularProgressView.swift` — 円形プログレスバーUI部品
+- `Model/PomodoroSession.swift` — SwiftDataの`@Model`。セッション開始日時・作業秒数・完了日時を記録

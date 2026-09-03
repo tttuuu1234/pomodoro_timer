@@ -12,7 +12,7 @@ import SwiftData
 struct PomodoroTimerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            PomodoroSession.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +25,7 @@ struct PomodoroTimerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TimerView()
         }
         .modelContainer(sharedModelContainer)
     }
