@@ -3,9 +3,44 @@
 //  PomodoroTimer
 //
 
+import AudioToolbox
 import Foundation
 import SwiftData
 import UserNotifications
+
+/// サウンドの選択肢。
+enum SoundOption: String, CaseIterable {
+    case bell
+    case chime
+    case alert
+    case fanfare
+    case tweet
+    case none
+
+    /// 表示名。
+    var label: String {
+        switch self {
+        case .bell: "ベル"
+        case .chime: "チャイム"
+        case .alert: "アラート"
+        case .fanfare: "ファンファーレ"
+        case .tweet: "鳥のさえずり"
+        case .none: "なし"
+        }
+    }
+
+    /// システムサウンドID。なしの場合はnil。
+    var soundID: SystemSoundID? {
+        switch self {
+        case .bell: 1016
+        case .chime: 1025
+        case .alert: 1005
+        case .fanfare: 1304
+        case .tweet: 1057
+        case .none: nil
+        }
+    }
+}
 
 /// タイマーのフェーズ。
 enum TimerPhase {
@@ -50,6 +85,14 @@ final class TimerViewModel {
     var completedCount = 0
     /// 設定シートを表示するかどうか。
     var showSettings = false
+    /// 作業完了時のサウンド。
+    var workCompletionSound: SoundOption = .chime {
+        didSet { UserDefaults.standard.set(workCompletionSound.rawValue, forKey: "workCompletionSound") }
+    }
+    /// 休憩完了時のサウンド。
+    var breakCompletionSound: SoundOption = .bell {
+        didSet { UserDefaults.standard.set(breakCompletionSound.rawValue, forKey: "breakCompletionSound") }
+    }
 
     // MARK: - 内部状態
 
@@ -87,6 +130,15 @@ final class TimerViewModel {
 
     init() {
         remainingSeconds = 25 * 60
+
+        if let raw = UserDefaults.standard.string(forKey: "workCompletionSound"),
+           let sound = SoundOption(rawValue: raw) {
+            workCompletionSound = sound
+        }
+        if let raw = UserDefaults.standard.string(forKey: "breakCompletionSound"),
+           let sound = SoundOption(rawValue: raw) {
+            breakCompletionSound = sound
+        }
     }
 
     /// ModelContextを設定する。
@@ -198,6 +250,7 @@ final class TimerViewModel {
         case .work:
             saveSession()
             completedCount += 1
+            playSound(workCompletionSound)
             if completedCount % pomodorosForLongBreak == 0 {
                 phase = .longBreak
                 remainingSeconds = longBreakDuration
@@ -208,6 +261,7 @@ final class TimerViewModel {
                 sendNotification(title: "作業完了", body: "短い休憩を取りましょう（\(shortBreakDuration / 60)分）")
             }
         case .shortBreak, .longBreak:
+            playSound(breakCompletionSound)
             phase = .work
             remainingSeconds = workDuration
             sessionStartedAt = nil
@@ -226,6 +280,19 @@ final class TimerViewModel {
         )
         modelContext.insert(session)
         sessionStartedAt = nil
+    }
+
+    // MARK: - サウンド
+
+    /// サウンドを再生する。
+    private func playSound(_ option: SoundOption) {
+        guard let soundID = option.soundID else { return }
+        AudioServicesPlaySystemSound(soundID)
+    }
+
+    /// プレビュー再生する。
+    func previewSound(_ option: SoundOption) {
+        playSound(option)
     }
 
     // MARK: - 通知
