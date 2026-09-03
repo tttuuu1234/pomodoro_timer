@@ -65,6 +65,36 @@ struct SettingsView: View {
                     Label("長い休憩", systemImage: "cup.and.saucer.fill")
                         .foregroundStyle(Color.longBreakPhase)
                 }
+
+                // 作業完了サウンド
+                Section {
+                    Picker("サウンド", selection: $viewModel.workCompletionSound) {
+                        ForEach(SoundOption.allCases, id: \.self) { option in
+                            Text(option.label).tag(option)
+                        }
+                    }
+                    .onChange(of: viewModel.workCompletionSound) { _, newValue in
+                        viewModel.previewSound(newValue)
+                    }
+                } header: {
+                    Label("作業完了サウンド", systemImage: "speaker.wave.2.fill")
+                        .foregroundStyle(Color.workPhase)
+                }
+
+                // 休憩完了サウンド
+                Section {
+                    Picker("サウンド", selection: $viewModel.breakCompletionSound) {
+                        ForEach(SoundOption.allCases, id: \.self) { option in
+                            Text(option.label).tag(option)
+                        }
+                    }
+                    .onChange(of: viewModel.breakCompletionSound) { _, newValue in
+                        viewModel.previewSound(newValue)
+                    }
+                } header: {
+                    Label("休憩完了サウンド", systemImage: "speaker.wave.2.fill")
+                        .foregroundStyle(Color.shortBreakPhase)
+                }
             }
             .navigationTitle("設定")
             .navigationBarTitleDisplayMode(.inline)
@@ -76,7 +106,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
 }
