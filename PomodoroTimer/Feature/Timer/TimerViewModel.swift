@@ -7,6 +7,7 @@ import ActivityKit
 import AudioToolbox
 import Foundation
 import SwiftData
+import UIKit
 import UserNotifications
 
 /// サウンドの選択肢。
@@ -165,6 +166,7 @@ final class TimerViewModel {
     func start() {
         guard !isRunning else { return }
         isRunning = true
+        UIApplication.shared.isIdleTimerDisabled = true
 
         if sessionStartedAt == nil, phase == .work {
             sessionStartedAt = Date()
@@ -186,6 +188,7 @@ final class TimerViewModel {
     /// タイマーを一時停止する。
     func pause() {
         isRunning = false
+        UIApplication.shared.isIdleTimerDisabled = false
         timer?.invalidate()
         timer = nil
         updateLiveActivity()
