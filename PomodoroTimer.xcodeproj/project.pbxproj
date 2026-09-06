@@ -7,15 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C6AA000B3049340300A02DD2 /* PomodoroTimerWidgetsExtension.appex in Embed Foundation Extensions */ = {
-			isa = PBXBuildFile;
-			fileRef = C6AA00013049340300A02DD2 /* PomodoroTimerWidgetsExtension.appex */;
-			settings = {
-				ATTRIBUTES = (
-					RemoveHeadersOnCopy,
-				);
-			};
-		};
+		C6AA000B3049340300A02DD2 /* PomodoroTimerWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C6AA00013049340300A02DD2 /* PomodoroTimerWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,7 +64,6 @@
 			target = C6AA00063049340300A02DD2 /* PomodoroTimerWidgetsExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A5BBE3E03049340000A02DD2 /* PomodoroTimer */ = {
@@ -682,9 +673,10 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tttuuu1234.PomodoroTimer.PomodoroTimerWidgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tttuuu1234.PomodoroTimer.LiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Dev Pomodoro Timer Live Activity";
 				SKIP_INSTALL = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -716,9 +708,10 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tttuuu1234.PomodoroTimer.PomodoroTimerWidgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tttuuu1234.PomodoroTimer.LiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Pomodoro Timer Live Activity";
 				SKIP_INSTALL = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
