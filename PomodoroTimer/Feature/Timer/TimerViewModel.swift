@@ -3,6 +3,7 @@
 //  PomodoroTimer
 //
 
+import ActivityKit
 import AudioToolbox
 import Foundation
 import SwiftData
@@ -101,6 +102,8 @@ final class TimerViewModel {
     private var modelContext: ModelContext?
     /// バックグラウンド移行時の時刻。
     private var backgroundEnteredAt: Date?
+    /// 現在のLive Activity。
+    private var currentActivity: Activity<PomodoroTimerAttributes>?
 
     // MARK: - 計算プロパティ
 
@@ -126,6 +129,15 @@ final class TimerViewModel {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
+    /// フェーズの色キー。
+    var phaseColorKey: String {
+        switch phase {
+        case .work: "work"
+        case .shortBreak: "shortBreak"
+        case .longBreak: "longBreak"
+        }
+    }
+
     // MARK: - 初期化
 
     init() {
@@ -144,6 +156,7 @@ final class TimerViewModel {
     /// ModelContextを設定する。
     func configure(modelContext: ModelContext) {
         self.modelContext = modelContext
+        cleanupStaleLiveActivities()
     }
 
     // MARK: - 操作
@@ -162,6 +175,12 @@ final class TimerViewModel {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             self?.tick()
         }
+
+        if currentActivity == nil {
+            startLiveActivity()
+        } else {
+            updateLiveActivity()
+        }
     }
 
     /// タイマーを一時停止する。
@@ -169,11 +188,13 @@ final class TimerViewModel {
         isRunning = false
         timer?.invalidate()
         timer = nil
+        updateLiveActivity()
     }
 
     /// タイマーをリセットする。
     func reset() {
         pause()
+        endLiveActivity()
         phase = .work
         remainingSeconds = workDuration
         completedCount = 0
@@ -228,6 +249,7 @@ final class TimerViewModel {
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
                 self?.tick()
             }
+            updateLiveActivity()
         }
     }
 
@@ -267,6 +289,8 @@ final class TimerViewModel {
             sessionStartedAt = nil
             sendNotification(title: "休憩終了", body: "作業を再開しましょう")
         }
+
+        updateLiveActivity()
     }
 
     /// 完了したセッションをSwiftDataに保存する。
@@ -315,5 +339,71 @@ final class TimerViewModel {
             trigger: nil
         )
         UNUserNotificationCenter.current().add(request)
+    }
+
+    // MARK: - Live Activity
+
+    /// Live Activityを開始する。
+    private func startLiveActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+
+        let state = makeLiveActivityState()
+        let content = ActivityContent(state: state, staleDate: nil)
+        do {
+            currentActivity = try Activity<PomodoroTimerAttributes>.request(
+                attributes: PomodoroTimerAttributes(),
+                content: content,
+                pushType: nil
+            )
+        } catch {
+            print("Live Activity開始エラー: \(error)")
+        }
+    }
+
+    /// Live Activityを更新する。
+    private func updateLiveActivity() {
+        guard let currentActivity else { return }
+
+        let state = makeLiveActivityState()
+        let content = ActivityContent(state: state, staleDate: nil)
+        Task {
+            await currentActivity.update(content)
+        }
+    }
+
+    /// Live Activityを終了する。
+    private func endLiveActivity() {
+        guard let currentActivity else { return }
+
+        let state = makeLiveActivityState()
+        let content = ActivityContent(state: state, staleDate: nil)
+        Task {
+            await currentActivity.end(content, dismissalPolicy: .immediate)
+        }
+        self.currentActivity = nil
+    }
+
+    /// 前回のstaleなLive Activityをクリーンアップする。
+    private func cleanupStaleLiveActivities() {
+        for activity in Activity<PomodoroTimerAttributes>.activities {
+            Task {
+                await activity.end(nil, dismissalPolicy: .immediate)
+            }
+        }
+    }
+
+    /// 現在の状態からLive ActivityのContentStateを生成する。
+    private func makeLiveActivityState() -> PomodoroTimerAttributes.ContentState {
+        let isPaused = !isRunning
+        let endTime = Date().addingTimeInterval(TimeInterval(remainingSeconds))
+
+        return PomodoroTimerAttributes.ContentState(
+            endTime: endTime,
+            phaseLabel: phase.label,
+            phaseColorKey: phaseColorKey,
+            isPaused: isPaused,
+            pausedRemainingSeconds: isPaused ? remainingSeconds : nil,
+            completedCount: completedCount
+        )
     }
 }
